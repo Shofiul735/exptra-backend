@@ -2,11 +2,12 @@ import { Module } from '@nestjs/common';
 import { AppController } from './app.controller';
 import { AppService } from './app.service';
 
-import { ConfigModule } from '@nestjs/config';
+import { ConfigModule, ConfigService } from '@nestjs/config';
 import { JoiConfigObject } from './config/Joi.config';
 import { AuthModule } from './auth/auth.module';
 import { TypeOrmModule } from '@nestjs/typeorm';
 import { DBConfig } from './config/DB.config';
+import { JwtModule } from '@nestjs/jwt';
 
 @Module({
   imports: [
@@ -17,7 +18,20 @@ import { DBConfig } from './config/DB.config';
         abortEarly: true
       }
     }),
-    TypeOrmModule.forRoot(DBConfig),
+    JwtModule.registerAsync({
+      imports: [ConfigModule],
+      inject: [ConfigService],
+      useFactory: (configService: ConfigService) => {
+        return {
+          global: true,
+          secret: configService.getOrThrow<string>('JWT_SECRET'),
+          signOptions:{
+            expiresIn: '1h',
+          }
+        }
+      }
+    }),
+    //TypeOrmModule.forRoot(DBConfig),
     AuthModule,
   ],
   controllers: [AppController],
