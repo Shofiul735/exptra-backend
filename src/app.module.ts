@@ -31,7 +31,7 @@ import { JwtModule } from '@nestjs/jwt';
         }
       }
     }),
-    //TypeOrmModule.forRoot(DBConfig),
+    TypeOrmModule.forRoot(DBConfig),
     AuthModule,
   ],
   controllers: [AppController],
